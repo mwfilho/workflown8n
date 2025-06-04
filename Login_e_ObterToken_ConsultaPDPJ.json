@@ -22,33 +22,6 @@
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "https://chrome.browserless.io/function?token=2SPBwNmoXs9lAWleb18afef9c8ea33a8d4534967cd2bc1888",
-        "sendBody": true,
-        "contentType": "raw",
-        "rawContentType": "application/json",
-        "body": "{   \"code\": \"export default async function({ page, context }) { /* …seu código… */ }\",   \"context\": {     \"numero_processo\": \"={{$node[\\\"Set Número Processo\\\"].json[\\\"numero_processo\\\"]}}\"   } }",
-        "options": {
-          "response": {
-            "response": {
-              "responseFormat": "json"
-            }
-          },
-          "timeout": 600000
-        }
-      },
-      "id": "583f9606-19bc-4505-81c1-61950376bb54",
-      "name": "Login & Obter access_token e Consultar PDPJ",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4,
-      "position": [
-        920,
-        220
-      ],
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
         "jsCode": "const { success, error, dados_processo } = $json;\nif (!success) {\n  throw new Error(`Erro no Browserless (login/consulta): ${error}`);\n}\nreturn [{ json: dados_processo }];"
       },
       "id": "13483d6c-ed1c-4232-a22d-7909fc4f9c3f",
@@ -64,8 +37,8 @@
       "parameters": {
         "resource": "Browser Rest Apis",
         "operation": "Execute",
-        "code": "export default async function({ page, context }) {\n  const usuario = '06293234456';\n  const senha = 'Simb@280303';\n  const numero = context.numero_processo;\n  try {\n    await page.setViewport({ width: 1920, height: 1080 });\n    await page.setUserAgent(\n      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' +\n      'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'\n    );\n\n    await page.goto('https://pje.cloud.tjpe.jus.br/1g/login.seam', {\n      waitUntil: 'networkidle2',\n      timeout: 60000\n    });\n    await page.waitForSelector('#username', { visible: true, timeout: 30000 });\n    await page.waitForSelector('#password', { visible: true, timeout: 30000 });\n    await page.type('#username', usuario, { delay: 50 });\n    await page.type('#password', senha, { delay: 50 });\n    await page.click('#kc-login');\n    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 60000 });\n\n    await page.waitForTimeout(2000);\n    await page.goto('https://portaldeservicos.pdpj.jus.br/consulta', {\n      waitUntil: 'networkidle2',\n      timeout: 60000\n    });\n    await page.waitForTimeout(2000);\n\n    const jwt = await page.evaluate(() => localStorage.getItem('access_token'));\n    if (!jwt) {\n      return {\n        data: { error: 'access_token não encontrado em localStorage.' },\n        type: 'application/json'\n      };\n    }\n\n    const consultaUrl = `https://portaldeservicos.pdpj.jus.br/api/v2/processos/${numero}`;\n    const resposta = await page.evaluate(\n      async ({ url, token }) => {\n        const resp = await fetch(url, {\n          method: 'GET',\n          headers: {\n            'Authorization': `Bearer ${token}`,\n            'Accept': 'application/json'\n          }\n        });\n        if (!resp.ok) {\n          const txt = await resp.text();\n          throw new Error(`Erro na API PDPJ: ${resp.status} - ${txt}`);\n        }\n        return resp.json();\n      },\n      { url: consultaUrl, token: jwt }\n    );\n\n    return {\n      data: resposta,\n      type: 'application/json'\n    };\n  } catch (err) {\n    return {\n      data: { error: err.message },\n      type: 'application/json'\n    };\n  }\n}",
-        "context": "={{$node[\"Set_Numero_Processo\"].json[\"numero_processo\"]}}\n",
+        "code": "export default async function({ page, context }) {\n  const usuario = context.usuario;\n  const senha = context.senha;\n  const numero = context.numero_processo;\n  try {\n    await page.setViewport({ width: 1920, height: 1080 });\n    await page.setUserAgent(\n      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' +\n      'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'\n    );\n\n    await page.goto('https://pje.cloud.tjpe.jus.br/1g/login.seam', {\n      waitUntil: 'networkidle2',\n      timeout: 60000\n    });\n    await page.waitForSelector('#username', { visible: true, timeout: 30000 });\n    await page.waitForSelector('#password', { visible: true, timeout: 30000 });\n    await page.type('#username', usuario, { delay: 50 });\n    await page.type('#password', senha, { delay: 50 });\n    await page.click('#kc-login');\n    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 60000 });\n\n    await page.waitForTimeout(2000);\n    await page.goto('https://portaldeservicos.pdpj.jus.br/consulta', {\n      waitUntil: 'networkidle2',\n      timeout: 60000\n    });\n    await page.waitForTimeout(2000);\n\n    const jwt = await page.evaluate(() => localStorage.getItem('access_token'));\n    if (!jwt) {\n      return {\n        data: { error: 'access_token não encontrado em localStorage.' },\n        type: 'application/json'\n      };\n    }\n\n    const consultaUrl = `https://portaldeservicos.pdpj.jus.br/api/v2/processos/${numero}`;\n    const resposta = await page.evaluate(\n      async ({ url, token }) => {\n        const resp = await fetch(url, {\n          method: 'GET',\n          headers: {\n            'Authorization': `Bearer ${token}`,\n            'Accept': 'application/json'\n          }\n        });\n        if (!resp.ok) {\n          const txt = await resp.text();\n          throw new Error(`Erro na API PDPJ: ${resp.status} - ${txt}`);\n        }\n        return resp.json();\n      },\n      { url: consultaUrl, token: jwt }\n    );\n\n    return {\n      data: resposta,\n      type: 'application/json'\n    };\n  } catch (err) {\n    return {\n      data: { error: err.message },\n      type: 'application/json'\n    };\n  }\n}\n",
+        "context": "={{jsonEncode({numero_processo: $node[\"Set_Numero_Processo\"].json[\"numero_processo\"], usuario: $env.PJE_USER, senha: $env.PJE_PASSWORD})}}",
         "timeout": 300000,
         "blockAds": false,
         "requestOptions": {}
@@ -127,11 +100,6 @@
             "index": 0
           }
         ]
-      ]
-    },
-    "Login & Obter access_token e Consultar PDPJ": {
-      "main": [
-        []
       ]
     },
     "Set_Numero_Processo": {

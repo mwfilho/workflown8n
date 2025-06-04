@@ -241,33 +241,6 @@
     },
     {
       "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "value": "kqp62gO6DyoNRXKq",
-          "mode": "list",
-          "cachedResultName": "My Sub-Workflow 1"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {},
-          "matchingColumns": [],
-          "schema": [],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": true
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.2,
-      "position": [
-        240,
-        600
-      ],
-      "id": "594871b1-693b-4d1c-99da-ea3a55668ff8",
-      "name": "Execute Workflow"
-    },
-    {
-      "parameters": {
         "description": "Ferramenta que faz login automático no PJe (TJPE) via Browserless/Puppeteer, extrai o token de acesso (access_token) armazenado em localStorage e executa, em sequência, uma requisição à API do PDPJ para consultar os dados completos de um processo judicial.\n\nO que ela faz:\n1. Navega até https://pje.cloud.tjpe.jus.br/1g/login.seam, preenche CPF e senha e efetua login via Keycloak.\n2. Após autenticar, acessa https://portaldeservicos.pdpj.jus.br/consulta para que o front-end salve o access_token no localStorage.\n3. Lê o valor de localStorage.getItem('access_token') e, em seguida, faz um fetch GET para https://portaldeservicos.pdpj.jus.br/api/v2/processos/{numero_processo}, passando Authorization: Bearer <access_token> no cabeçalho.\n4. Devolve o JSON completo do processo (classe, partes, movimentações, valores, etc.) para o fluxo pai.\n\nParâmetro obrigatório:\n- numero_processo (string): número do processo judicial no formato CNJ (20 dígitos ou NNNNNNN-DD.AAAA.J.TT.OOOO).\n\nRetorno:\n- Em caso de sucesso: todo o objeto JSON com os dados do processo (campo dados_processo).\n- Em caso de falha: objeto { \"success\": false, \"error\": \"<mensagem de erro detalhada>\" }, que será transformado em erro no nó seguinte.\n\nQuando usar:\nSempre que o usuário solicitar consulta de um processo no chat, para garantir que o login e a chamada à API sejam feitos de forma segura e unificada, sem necessidade de intervenções manuais.",
         "workflowId": {
           "__rl": true,
