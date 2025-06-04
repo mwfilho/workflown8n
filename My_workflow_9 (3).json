@@ -1,0 +1,418 @@
+{
+  "name": "My workflow 9",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 🤖 AI Agent Jurídico PDPJ\n\n### Funcionalidades:\n- 💬 Chat interativo com memória\n- 🔐 Login automático no PJE\n- 📋 Consulta de processos\n- 📄 Download de documentos\n- 🧠 Análise inteligente com IA\n- 📊 Geração de relatórios\n\n### Tools Disponíveis:\n1. **Login Tool** - Autentica no PJE\n2. **Consulta Processo** - Busca dados do processo\n3. **Listar Documentos** - Lista documentos disponíveis\n4. **Analisar Processo** - Gera insights jurídicos\n5. **Buscar Jurisprudência** - Pesquisa casos similares",
+        "height": 400,
+        "width": 350
+      },
+      "id": "41294301-5d19-4445-aa48-ea87a561c112",
+      "name": "Documentação",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        80
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "public": true,
+        "options": {
+          "responseMode": "responseNode"
+        }
+      },
+      "id": "d2ae80d3-ff49-4f6c-927e-5c5dc219beb2",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        380,
+        260
+      ],
+      "typeVersion": 1.1,
+      "webhookId": "pdpj-assistant"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "frequencyPenalty": 0.1,
+          "maxTokens": 2000,
+          "presencePenalty": 0.1,
+          "temperature": 0.3,
+          "topP": 0.9
+        }
+      },
+      "id": "008c9e15-3973-425f-9f4e-524aaeef3c6c",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        520,
+        380
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "openAiApi": {
+          "id": "VQ3UGBDEJ54kzti3",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 8
+      },
+      "id": "2952b8ae-4bff-4a67-8d50-c2b030aa1f96",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        660,
+        400
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "content": "## ⚙️ Configuração Passo a Passo\n\n### 1. Chat Trigger\n- Path: Automático\n- Tipo: Internal Chat\n\n### 2. AI Agent\n- Nome: AI Agent Jurídico PDPJ\n- System Message: [Incluído]\n- Output Parser: Ativado\n\n### 3. OpenAI Model\n- Model: gpt-4-turbo-preview\n- Temperature: 0.3\n- Max Tokens: 2000\n\n### 4. Memory\n- Tipo: Window Buffer\n- Window Size: 10\n\n### 5. Tools\n- Todas apontam para este workflow\n- IDs dos webhooks configurados\n\n### 6. Credenciais\n- CPF: 06293234456\n- Senha: Simb@280303\n- Token Browserless: [Incluído]",
+        "height": 450,
+        "width": 300
+      },
+      "id": "0319ade4-17b2-4204-aeac-a6d089695e85",
+      "name": "Guia de Configuração",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1360,
+        140
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Você é um assistente jurídico altamente qualificado, com expertise no sistema PDPJ (Portal de Documentos do Poder Judiciário) e em processos judiciais brasileiros. Seu objetivo é receber pedidos de consulta ou análise processual, disparar as ferramentas corretas para obter dados do PDPJ/PJe e, a partir disso, fornecer respostas completas e coerentes ao usuário.\n\n## Ferramentas Disponíveis\n- **Login_e_ObterTokenLocalStorage_ConsultaPDPJ(numero_processo)**  \n  → Faz login no PJe (via Browserless), extrai `access_token` do localStorage e retorna o JSON completo do processo do PDPJ para o número informado.\n\n- **listar_documentos_processo(numero_processo)**  \n  → Retorna lista de documentos (PDFs, petições, decisões) disponíveis para o processo informado.\n\n- **analisar_dados_processo(dados_json_completo)**  \n  → Gera insights e recomendações jurídicas com base no JSON completo do processo.\n\n- **buscar_jurisprudencia(termos_de_busca, opcional: filtros)**  \n  → Busca jurisprudências similares a partir de termos jurídicos ou código de assunto.\n\n## Suas Responsabilidades\n1. **Identificar a Intenção e Parâmetros**  \n   - Detectar números de processo no formato CNJ (20 dígitos ou `NNNNNNN-DD.AAAA.J.TT.OOOO`).  \n   - Distinguir se o usuário quer apenas dados principais, documentos, análise ou jurisprudência.\n\n2. **Chamar Ferramentas Corretamente**  \n   - Para consulta de processo: use sempre `Login_e_ObterTokenLocalStorage_ConsultaPDPJ(numero_processo)` (ele engloba login e consulta).  \n   - Para listar documentos: use `listar_documentos_processo(numero_processo)` apenas quando solicitado.  \n   - Para análise jurídica: use `analisar_dados_processo(dados_json)` passando o JSON recebido pela consulta.  \n   - Para jurisprudência: use `buscar_jurisprudencia(termos_de_busca)` se o usuário solicitar precedentes.  \n\n3. **Tratamento de Erros**  \n   - Se a consulta de processo retornar erro (ex.: “processo não encontrado”, “token expirado”), informe de forma clara:  \n     “Não foi possível consultar o processo [NÚMERO]: [descrição do erro].”  \n   - Se for erro de autenticação, sugira que o agente tente novamente (“O token do PJe expirou; iniciando novo login.”).  \n\n4. **Comunicação Profissional**  \n   - Use tom formal e respeitoso; adote termos jurídicos corretos.  \n   - Explique eventualmente termos técnicos em linguagem simples.  \n   - Responda de forma direta, mas complete, seguindo sempre a formatação abaixo.\n\n## Padrões de Formatação\n- Use **negrito** para destacar pontos-chave (classe, data, partes).  \n- Dados principais devem vir em lista com marcadores.  \n- Datas no formato DD/MM/AAAA.  \n- Ao citar número de processo, inclua o formato completo CNJ (ex.: **0802563-85.2024.8.20.5004**).\n\n### Exemplos de Resposta\n**Consulta de Processo**  \n> “Localizei o processo **0802563-85.2024.8.20.5004**. Aqui estão os dados principais:  \n> - **Classe**: Cumprimento de Sentença  \n> - **Assunto**: Ação de Cobrança  \n> - **Data de Distribuição**: 15/03/2024  \n> - **Valor da Causa**: R$ 12.500,00  \n> - **Partes**:  \n>   - **Autor**: Fulano de Tal  \n>   - **Réu**: Empresa XYZ S/A  \n> - **Última Movimentação**: Decisão interlocutória em 22/05/2025”\n\n**Análise Jurídica**  \n> “Com base na análise do processo **0802563-85.2024.8.20.5004**, observo que:  \n> 1. A contestação ainda não foi apresentada;  \n> 2. O valor da causa está compatível com a jurisprudência local;  \n> 3. Recomenda-se solicitar bloqueio de bens do réu, pois há risco de dilapidação de patrimônio.”\n\n**Erro de Token/Autenticação**  \n> “Não foi possível obter o token do PJe. Iniciando novo login. Por favor, tente novamente em alguns segundos.”\n\n---\n\n### Notas Finais\n- **Sempre** use o JSON retornado pelo sub‐workflow de consulta como input para a ferramenta `analisar_dados_processo` quando o usuário pedir “análise”.  \n- **Mantenha histórico**: lembre-se de processos já consultados na mesma sessão e faça referências se o usuário voltar a mencioná-los.",
+          "returnIntermediateSteps": true
+        }
+      },
+      "id": "04aed12b-d48d-4ddf-96cd-164c1265b13b",
+      "name": "AI Agent Jurídico PDPJ",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        660,
+        220
+      ],
+      "typeVersion": 1.7
+    },
+    {
+      "parameters": {
+        "name": "analisar_dados_processo",
+        "description": "Analisa dados do processo e gera insights jurídicos relevantes",
+        "workflowId": "8p1FezK02eglEnXr",
+        "fields": {
+          "values": [
+            {
+              "name": "dados_processo",
+              "type": "objectValue"
+            }
+          ]
+        }
+      },
+      "id": "a883c1b8-41d0-4b3a-80f8-360c4174d855",
+      "name": "analisar_dados_processo",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        1200,
+        240
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "name": "listar_documentos_processo",
+        "description": "Lista todos os documentos disponíveis de um processo judicial",
+        "workflowId": "R0o48a9gYw9zV55s",
+        "fields": {
+          "values": [
+            {
+              "name": "numero_processo"
+            }
+          ]
+        }
+      },
+      "id": "dbec5862-d892-49d4-8887-d221fde75485",
+      "name": "listar_documentos_processo",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        660,
+        560
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "name": "realizar_login_pje",
+        "description": "Realiza login no sistema PJE para obter token de autenticação necessário para consultas na API PDPJ",
+        "workflowId": "xzJLyR9yQU08snI3",
+        "fields": {
+          "values": []
+        }
+      },
+      "id": "83d3e661-b4f3-461f-8510-105472671405",
+      "name": "realizar_login_pje",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        1220,
+        580
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "name": "consultar_processo_pdpj",
+        "description": "Consulta dados completos de um processo judicial no PDPJ usando o número do processo",
+        "workflowId": "kuun3K58RhwyrdfH",
+        "fields": {
+          "values": [
+            {
+              "name": "numero_processo"
+            }
+          ]
+        }
+      },
+      "id": "f492465e-c808-43a5-844a-cf329275223e",
+      "name": "consultar_processo_pdpj",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        1280,
+        400
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "name": "buscar_jurisprudencia",
+        "description": "Busca jurisprudência relacionada ao assunto do processo",
+        "workflowId": "={{ $workflow.id }}",
+        "fields": {
+          "values": [
+            {
+              "name": "termos_busca",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "1d7eaae5-658d-4295-9cbc-ac2230dd0c36",
+      "name": "buscar_jurisprudencia",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        1080,
+        520
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "description": "Realiza login no sistema PJE para obter token de autenticação necessário para consultas na API PDPJ",
+        "workflowId": {
+          "__rl": true,
+          "value": "xzJLyR9yQU08snI3",
+          "mode": "list",
+          "cachedResultName": "Login-PJ"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1280,
+        500
+      ],
+      "id": "c3d01b22-3474-439d-a862-8b555e9506ff",
+      "name": "Login-PJE"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "kqp62gO6DyoNRXKq",
+          "mode": "list",
+          "cachedResultName": "My Sub-Workflow 1"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        600
+      ],
+      "id": "594871b1-693b-4d1c-99da-ea3a55668ff8",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {
+        "description": "Ferramenta que faz login automático no PJe (TJPE) via Browserless/Puppeteer, extrai o token de acesso (access_token) armazenado em localStorage e executa, em sequência, uma requisição à API do PDPJ para consultar os dados completos de um processo judicial.\n\nO que ela faz:\n1. Navega até https://pje.cloud.tjpe.jus.br/1g/login.seam, preenche CPF e senha e efetua login via Keycloak.\n2. Após autenticar, acessa https://portaldeservicos.pdpj.jus.br/consulta para que o front-end salve o access_token no localStorage.\n3. Lê o valor de localStorage.getItem('access_token') e, em seguida, faz um fetch GET para https://portaldeservicos.pdpj.jus.br/api/v2/processos/{numero_processo}, passando Authorization: Bearer <access_token> no cabeçalho.\n4. Devolve o JSON completo do processo (classe, partes, movimentações, valores, etc.) para o fluxo pai.\n\nParâmetro obrigatório:\n- numero_processo (string): número do processo judicial no formato CNJ (20 dígitos ou NNNNNNN-DD.AAAA.J.TT.OOOO).\n\nRetorno:\n- Em caso de sucesso: todo o objeto JSON com os dados do processo (campo dados_processo).\n- Em caso de falha: objeto { \"success\": false, \"error\": \"<mensagem de erro detalhada>\" }, que será transformado em erro no nó seguinte.\n\nQuando usar:\nSempre que o usuário solicitar consulta de um processo no chat, para garantir que o login e a chamada à API sejam feitos de forma segura e unificada, sem necessidade de intervenções manuais.",
+        "workflowId": {
+          "__rl": true,
+          "value": "kqp62gO6DyoNRXKq",
+          "mode": "list",
+          "cachedResultName": "Login_e_ObterToken_ConsultaPDPJ"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "numero_processo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('numero_processo', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "numero_processo"
+          ],
+          "schema": [
+            {
+              "id": "numero_processo",
+              "displayName": "numero_processo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        860,
+        540
+      ],
+      "id": "7c7f4d27-42d5-4159-bd12-7a58d2ee2217",
+      "name": "Login_e_ObterToken_ConsultaPDPJ"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Jurídico PDPJ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Jurídico PDPJ",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent Jurídico PDPJ",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "analisar_dados_processo": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Jurídico PDPJ",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "realizar_login_pje": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "consultar_processo_pdpj": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "buscar_jurisprudencia": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Jurídico PDPJ",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "listar_documentos_processo": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Jurídico PDPJ",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Login-PJE": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Login_e_ObterToken_ConsultaPDPJ": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Jurídico PDPJ",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e05a2673-89bd-401f-9660-7aa7c671ef0a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9601c2da077393e3c7d395982728b7744de7ac7dd087f4789f3781b83e316e6e"
+  },
+  "id": "CbttoGhOBF53R0D1",
+  "tags": []
+}
