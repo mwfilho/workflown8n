@@ -12,7 +12,7 @@
         }
       },
       "id": "c055762a-8fe7-4141-a639-df2372f30060",
-      "typeVersion": 1.1,
+      "typeVersion": 1,
       "name": "When Executed by Another Workflow",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "position": [
