@@ -74,7 +74,7 @@
     },
     {
       "parameters": {
-        "content": "## ⚙️ Configuração Passo a Passo\n\n### 1. Chat Trigger\n- Path: Automático\n- Tipo: Internal Chat\n\n### 2. AI Agent\n- Nome: AI Agent Jurídico PDPJ\n- System Message: [Incluído]\n- Output Parser: Ativado\n\n### 3. OpenAI Model\n- Model: gpt-4-turbo-preview\n- Temperature: 0.3\n- Max Tokens: 2000\n\n### 4. Memory\n- Tipo: Window Buffer\n- Window Size: 10\n\n### 5. Tools\n- Todas apontam para este workflow\n- IDs dos webhooks configurados\n\n### 6. Credenciais\n- CPF: 06293234456\n- Senha: Simb@280303\n- Token Browserless: [Incluído]",
+        "content": "## ⚙️ Configuração Passo a Passo\n\n### 1. Chat Trigger\n- Path: Automático\n- Tipo: Internal Chat\n\n### 2. AI Agent\n- Nome: AI Agent Jurídico PDPJ\n- System Message: [Incluído]\n- Output Parser: Ativado\n\n### 3. OpenAI Model\n- Model: gpt-4o\n- Temperature: 0.3\n- Max Tokens: 2000\n\n### 4. Memory\n- Tipo: Window Buffer\n- Window Size: 10\n\n### 5. Tools\n- Todas apontam para este workflow\n- IDs dos webhooks configurados\n\n### 6. Credenciais\n- CPF: 06293234456\n- Senha: Simb@280303\n- Token Browserless: [Incluído]",
         "height": 450,
         "width": 300
       },
