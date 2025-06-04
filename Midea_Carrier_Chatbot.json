@@ -1,0 +1,177 @@
+{
+  "name": "Midea_Carrier_Chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {
+          "responseMode": "responseNode"
+        }
+      },
+      "id": "chat",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1,
+      "webhookId": "midea-chat",
+      "position": [
+        200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "temperature": 0.3,
+          "maxTokens": 2000
+        }
+      },
+      "id": "model",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "VQ3UGBDEJ54kzti3",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 8
+      },
+      "id": "memory",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1,
+      "position": [
+        640,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "returnIntermediateSteps": true,
+        "options": {
+          "systemMessage": "Voc\u00ea \u00e9 um assistente jur\u00eddico altamente qualificado, com expertise no sistema PDPJ e em processos judiciais brasileiros. Seu objetivo \u00e9 atender a consultas de processos e gerar an\u00e1lises a partir das ferramentas dispon\u00edveis."
+        }
+      },
+      "id": "agent",
+      "name": "AI Agent Jur\u00eddico",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [
+        820,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "name": "consultar_processo",
+        "workflowId": "Login_e_ObterToken_ConsultaPDPJ_v2",
+        "fields": {
+          "values": [
+            {
+              "name": "numero_processo"
+            }
+          ]
+        },
+        "description": "Consulta processo via PDPJ"
+      },
+      "id": "tool1",
+      "name": "consultar_processo",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "name": "analisar_dados_processo",
+        "workflowId": "analisar_dados_processo",
+        "fields": {
+          "values": [
+            {
+              "name": "dados_processo",
+              "type": "objectValue"
+            }
+          ]
+        },
+        "description": "Analisa dados de processo"
+      },
+      "id": "tool2",
+      "name": "analisar_dados_processo",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        380
+      ]
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Jur\u00eddico",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Jur\u00eddico",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent Jur\u00eddico",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "consultar_processo": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Jur\u00eddico",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "analisar_dados_processo": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Jur\u00eddico",
+            "type": "ai_tool",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  }
+}
