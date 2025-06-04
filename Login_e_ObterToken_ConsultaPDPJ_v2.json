@@ -1,0 +1,81 @@
+{
+  "name": "Login_e_ObterToken_ConsultaPDPJ_v2",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "numero_processo"
+            }
+          ]
+        }
+      },
+      "id": "trigger",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        300,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://browserless-azs7-production.up.railway.app/function?token=JCOPa3jIZR51EA8xW5r4rxHCgkiNsyUHqYnt7Jt3cjMCGZhn",
+        "method": "POST",
+        "responseFormat": "json",
+        "jsonParameters": true,
+        "bodyParametersJson": "{\"code\": \"export default async function({ page, context }) {\\n  const usuario = '06293234456';\\n  const senha = 'Simb@280303';\\n  const numero = context.numero_processo;\\n  try {\\n    await page.setViewport({ width: 1920, height: 1080 });\\n    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');\\n    await page.goto('https://pje.cloud.tjpe.jus.br/1g/login.seam', { waitUntil: 'networkidle2', timeout: 60000 });\\n    await page.waitForSelector('#username', { visible: true, timeout: 30000 });\\n    await page.waitForSelector('#password', { visible: true, timeout: 30000 });\\n    await page.type('#username', usuario, { delay: 50 });\\n    await page.type('#password', senha, { delay: 50 });\\n    await page.click('#kc-login');\\n    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 60000 });\\n    await page.goto('https://portaldeservicos.pdpj.jus.br/consulta', { waitUntil: 'networkidle2', timeout: 60000 });\\n    const token = await page.evaluate(() => localStorage.getItem('access_token'));\\n    if (!token) {\\n      return { data: { error: 'access_token nao encontrado' }, type: 'application/json' };\\n    }\\n    const url = 'https://portaldeservicos.pdpj.jus.br/api/v2/processos/' + numero;\\n    const resposta = await page.evaluate(async ({ url, token }) => {\\n      const resp = await fetch(url, { method: 'GET', headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' } });\\n      if (!resp.ok) {\\n        const txt = await resp.text();\\n        throw new Error('Erro na API PDPJ: ' + resp.status + ' - ' + txt);\\n      }\\n      return resp.json();\\n    }, { url, token });\\n    return { data: resposta, type: 'application/json' };\\n  } catch (err) {\\n    return { data: { error: err.message }, type: 'application/json' };\\n  }\\n}\", \"context\": {\"numero_processo\": \"={{ $json.numero_processo }}\"}}",
+        "headerParametersJson": "{\"Content-Type\": \"application/json\"}"
+      },
+      "id": "browserless",
+      "name": "Browserless Function",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        600,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const { data } = $json; if (data.error) throw new Error(data.error); return [{ json: data }];"
+      },
+      "id": "check",
+      "name": "Checar e Retornar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Browserless Function",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Browserless Function": {
+      "main": [
+        [
+          {
+            "node": "Checar e Retornar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "versionId": "v1"
+}

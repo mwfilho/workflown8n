@@ -1,0 +1,108 @@
+{
+  "name": "analisar_dados_processo",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "dados_processo"
+            }
+          ]
+        }
+      },
+      "id": "trigger",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        260,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "temperature": 0.4
+        }
+      },
+      "id": "openai",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        620,
+        300
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "VQ3UGBDEJ54kzti3",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "propertyName": "mensagem",
+        "value": "={{`Analise juridicamente e estime o risco: ` + JSON.stringify($json.dados_processo)}}"
+      },
+      "id": "setPrompt",
+      "name": "Definir Prompt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { analise: $json } }];"
+      },
+      "id": "ret",
+      "name": "Retornar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        860,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Definir Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Definir Prompt": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Chat Model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "main": [
+        [
+          {
+            "node": "Retornar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -26,3 +26,13 @@ O script retorna um resumo do processo e uma análise de risco produzidos pela I
 ## Observações
 
 O login no PJe utiliza as credenciais de exemplo presentes no workflow original e o endpoint público do Browserless. Em cenários reais recomenda‑se utilizar variáveis de ambiente ou credenciais seguras.
+
+## Workflows n8n
+
+Além do script Node.js, este repositório contém três arquivos de workflow para importação no n8n:
+
+- `Login_e_ObterToken_ConsultaPDPJ_v2.json` – realiza o login no PJe via Browserless e retorna o JSON do processo.
+- `analisar_dados_processo.json` – gera uma análise jurídica do processo utilizando o modelo GPT‑4o.
+- `Midea_Carrier_Chatbot.json` – workflow principal que expõe o agente jurídico e utiliza os dois subworkflows anteriores.
+
+Importe os arquivos nessa ordem através do menu **Import workflow** do n8n (versão 1.48.0). Após a importação, o chatbot estará pronto para receber solicitações de consulta de processos e análises.
